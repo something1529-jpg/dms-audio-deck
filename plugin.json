@@ -1,0 +1,23 @@
+{
+    "$schema": "https://raw.githubusercontent.com/AvengeMedia/DankMaterialShell/master/quickshell/PLUGINS/plugin-schema.json",
+    "id": "audioDeck",
+    "name": "Audio Deck",
+    "description": "A pavucontrol-style per-app mixer with live spectrum eye candy: mix every app's volume, mute solos, and switch outputs or inputs from the bar and Control Center.",
+    "version": "1.0.0",
+    "author": "ghost",
+    "license": "MIT",
+    "icon": "graphic_eq",
+    "type": "widget",
+    "capabilities": [
+        "dankbar-widget",
+        "control-center"
+    ],
+    "component": "./AudioDeckWidget.qml",
+    "settings": "./AudioDeckSettings.qml",
+    "requires_dms": ">=1.7.0",
+    "permissions": [
+        "settings_read",
+        "settings_write",
+        "process"
+    ]
+}

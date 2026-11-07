@@ -1,0 +1,8 @@
+singleton AudioDeckService AudioDeckService.qml
+singleton AudioDeckCava AudioDeckCava.qml
+AudioDeckRing AudioDeckRing.qml
+AudioDeckSpectrum AudioDeckSpectrum.qml
+AudioDeckVolumeBar AudioDeckVolumeBar.qml
+AudioDeckControlRow AudioDeckControlRow.qml
+AudioDeckMixer AudioDeckMixer.qml
+AudioDeckWidget AudioDeckWidget.qml
