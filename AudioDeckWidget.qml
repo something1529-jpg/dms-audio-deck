@@ -146,7 +146,7 @@ PluginComponent {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: AudioDeckService.showPercent
                     text: AudioDeckService.masterPercent + "%"
-                    font.pixelSize: Theme.fontSizeSmall - 2
+                    font.pixelSize: Theme.fontSizeXSmall
                     font.weight: Font.Medium
                     color: AudioDeckService.masterMuted ? Theme.surfaceVariantText : Theme.surfaceText
                 }
@@ -199,7 +199,7 @@ PluginComponent {
                     anchors.horizontalCenter: parent.horizontalCenter
                     visible: AudioDeckService.showPercent
                     text: AudioDeckService.masterPercent
-                    font.pixelSize: Theme.fontSizeSmall - 2
+                    font.pixelSize: Theme.fontSizeXSmall
                     font.weight: Font.Medium
                     color: AudioDeckService.masterMuted ? Theme.surfaceVariantText : Theme.primary
                 }

@@ -165,7 +165,7 @@ Column {
                     StyledText {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: "VOLUME"
-                        font.pixelSize: Theme.fontSizeSmall - 2
+                        font.pixelSize: Theme.fontSizeXSmall
                         font.letterSpacing: 1.3
                         color: Theme.surfaceVariantText
                     }
@@ -194,7 +194,7 @@ Column {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         text: "OUTPUT"
-                        font.pixelSize: Theme.fontSizeSmall - 1
+                        font.pixelSize: Theme.fontSizeXSmall
                         font.letterSpacing: 1.2
                         font.weight: Font.Medium
                         color: Theme.surfaceVariantText

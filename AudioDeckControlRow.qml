@@ -107,7 +107,7 @@ Item {
                     text: root.subtitle
                     elide: Text.ElideRight
                     maximumLineCount: 1
-                    font.pixelSize: Theme.fontSizeSmall - 1
+                    font.pixelSize: Theme.fontSizeSmall
                     color: root.muted ? Theme.withAlpha(Theme.surfaceVariantText, 0.8) : Theme.surfaceVariantText
                 }
             }
