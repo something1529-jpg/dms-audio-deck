@@ -189,12 +189,23 @@ Column {
                     }
                 }
 
-                MouseArea {
+                DIconButton {
                     anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
+                    buttonSize: Math.min(width, height)
+                    iconName: ""
+                    iconSize: 0
+                    backgroundColor: "transparent"
+                    stateColor: Theme.primary
+                    tooltipText: AudioDeckService.masterMuted ? "Unmute output" : "Mute output"
                     onClicked: AudioDeckService.toggleMute(AudioDeckService.master)
-                    onWheel: wheel => AudioDeckService.adjustVolume(AudioDeckService.master, wheel.angleDelta.y > 0 ? AudioDeckService.wheelStep : -AudioDeckService.wheelStep)
+                }
+
+                WheelHandler {
+                    enabled: AudioDeckService.master !== null
+                    onWheel: wheel => {
+                        AudioDeckService.adjustVolume(AudioDeckService.master, wheel.angleDelta.y > 0 ? AudioDeckService.wheelStep : -AudioDeckService.wheelStep);
+                        wheel.accepted = true;
+                    }
                 }
             }
 
@@ -217,48 +228,22 @@ Column {
                         color: Theme.surfaceVariantText
                     }
 
-                    Rectangle {
+                    DButton {
                         id: muteChip
                         visible: AudioDeckService.master !== null
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         height: Theme.iconSize
-                        width: muteChipRow.implicitWidth + Theme.spacingM
-                        radius: height / 2
-                        color: AudioDeckService.masterMuted ? Theme.withAlpha(Theme.error, 0.16) : Theme.withAlpha(Theme.primary, 0.12)
-
-                        Behavior on color {
-                            enabled: root.animate
-                            ColorAnimation { duration: 160 }
-                        }
-
-                        Row {
-                            id: muteChipRow
-                            anchors.centerIn: parent
-                            spacing: Theme.spacingXS
-
-                            DIcon {
-                                anchors.verticalCenter: parent.verticalCenter
-                                name: AudioDeckService.masterMuted ? "volume_off" : "volume_up"
-                                size: Theme.fontSizeSmall
-                                color: AudioDeckService.masterMuted ? Theme.error : Theme.primary
-                            }
-
-                            StyledText {
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: AudioDeckService.masterMuted ? "Muted" : "Live"
-                                font.pixelSize: Theme.fontSizeSmall
-                                font.weight: Font.Medium
-                                color: AudioDeckService.masterMuted ? Theme.error : Theme.primary
-                            }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: AudioDeckService.toggleMute(AudioDeckService.master)
-                        }
+                        buttonHeight: Theme.iconSize
+                        minimumWidth: 0
+                        horizontalPadding: Theme.spacingM
+                        iconName: AudioDeckService.masterMuted ? "volume_off" : "volume_up"
+                        iconSize: Theme.iconSizeSmall
+                        text: AudioDeckService.masterMuted ? "Muted" : "Live"
+                        backgroundColor: AudioDeckService.masterMuted ? Theme.withAlpha(Theme.error, 0.16) : Theme.withAlpha(Theme.primary, 0.12)
+                        textColor: AudioDeckService.masterMuted ? Theme.error : Theme.primary
+                        tooltipText: AudioDeckService.masterMuted ? "Unmute output" : "Mute output"
+                        onClicked: AudioDeckService.toggleMute(AudioDeckService.master)
                     }
                 }
 
@@ -277,7 +262,6 @@ Column {
                     value: AudioDeckService.masterPercent
                     maxValue: AudioDeckService.maxVolume
                     muted: AudioDeckService.masterMuted
-                    animate: root.animate
                     wheelStep: AudioDeckService.wheelStep
                     enabled: AudioDeckService.master !== null
                     onMoved: newValue => AudioDeckService.setVolume(AudioDeckService.master, newValue)
@@ -310,35 +294,18 @@ Column {
         Repeater {
             model: root.tabs
 
-            delegate: Rectangle {
+            delegate: DButton {
                 id: chip
                 required property var modelData
 
-                width: tabLabel.implicitWidth + Theme.spacingM * 2
-                height: Theme.iconSize + Theme.spacingXS
-                radius: height / 2
-                color: root.tab === chip.modelData.key ? Theme.primary : (chipHover.containsMouse ? Theme.withAlpha(Theme.primary, 0.10) : "transparent")
-
-                Behavior on color {
-                    ColorAnimation { duration: root.animate ? 140 : 0 }
-                }
-
-                StyledText {
-                    id: tabLabel
-                    anchors.centerIn: parent
-                    text: chip.modelData.label + "  " + chip.modelData.count
-                    font.pixelSize: Theme.fontSizeSmall
-                    font.weight: root.tab === chip.modelData.key ? Font.DemiBold : Font.Medium
-                    color: root.tab === chip.modelData.key ? Theme.onPrimary : Theme.surfaceVariantText
-                }
-
-                MouseArea {
-                    id: chipHover
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.tab = chip.modelData.key
-                }
+                buttonHeight: Theme.iconSize + Theme.spacingXS
+                minimumWidth: 0
+                horizontalPadding: Theme.spacingM
+                text: chip.modelData.label + "  " + chip.modelData.count
+                backgroundColor: root.tab === chip.modelData.key ? Theme.primary : "transparent"
+                textColor: root.tab === chip.modelData.key ? Theme.onPrimary : Theme.surfaceVariantText
+                tooltipText: chip.modelData.label
+                onClicked: root.tab = chip.modelData.key
             }
         }
     }

@@ -114,26 +114,19 @@ Item {
                 }
             }
 
-            Item {
+            DIconButton {
                 id: defaultButton
                 visible: root.isDevice
                 width: Theme.iconSize
                 height: Theme.iconSize
+                buttonSize: Theme.iconSize
+                iconSize: Theme.iconSizeSmall
                 anchors.verticalCenter: parent.verticalCenter
-
-                DIcon {
-                    anchors.centerIn: parent
-                    name: root.isDefault ? "radio_button_checked" : "radio_button_unchecked"
-                    size: Theme.iconSizeSmall
-                    color: root.isDefault ? Theme.primary : Theme.surfaceVariantText
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.defaultRequested()
-                }
+                enabled: root.audio !== null
+                iconName: root.isDefault ? "radio_button_checked" : "radio_button_unchecked"
+                iconColor: root.isDefault ? Theme.primary : Theme.surfaceVariantText
+                tooltipText: root.isDefault ? "Default device" : "Set as default device"
+                onClicked: root.defaultRequested()
             }
 
             Item {
@@ -152,37 +145,18 @@ Item {
                 }
             }
 
-            Item {
+            DIconButton {
                 id: muteButton
                 width: Theme.iconSize + Theme.spacingXXS
                 height: width
+                buttonSize: width
+                iconSize: Theme.iconSizeSmall
                 anchors.verticalCenter: parent.verticalCenter
-
-                Rectangle {
-                    anchors.fill: parent
-                    radius: width / 2
-                    color: muteHover.containsMouse ? Theme.withAlpha(root.muted ? Theme.error : Theme.primary, 0.14) : "transparent"
-
-                    Behavior on color {
-                        enabled: AudioDeckService.motion
-                        ColorAnimation { duration: 140 }
-                    }
-                }
-
-                DIcon {
-                    anchors.centerIn: parent
-                    name: root.muted ? "volume_off" : (root.inputDevice ? "mic" : "volume_up")
-                    size: Theme.iconSizeSmall
-                    color: root.muted ? Theme.error : Theme.surfaceVariantText
-                }
-
-                MouseArea {
-                    id: muteHover
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.muteToggled()
-                }
+                enabled: root.audio !== null
+                iconName: root.muted ? "volume_off" : (root.inputDevice ? "mic" : "volume_up")
+                iconColor: root.muted ? Theme.error : Theme.surfaceVariantText
+                tooltipText: root.muted ? "Unmute" : "Mute"
+                onClicked: root.muteToggled()
             }
         }
 
@@ -191,7 +165,6 @@ Item {
             value: root.percent
             maxValue: root.maxValue
             muted: root.muted
-            animate: AudioDeckService.animations
             wheelStep: AudioDeckService.wheelStep
             enabled: root.audio !== null
             onMoved: newValue => root.volumeMoved(newValue)

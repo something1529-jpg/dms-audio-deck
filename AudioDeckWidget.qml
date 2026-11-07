@@ -65,7 +65,6 @@ PluginComponent {
                 value: AudioDeckService.masterPercent
                 maxValue: AudioDeckService.maxVolume
                 muted: AudioDeckService.masterMuted
-                animate: AudioDeckService.animations
                 wheelStep: AudioDeckService.wheelStep
                 enabled: AudioDeckService.master !== null
                 onMoved: newValue => AudioDeckService.setVolume(AudioDeckService.master, newValue)

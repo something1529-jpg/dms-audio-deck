@@ -26,16 +26,17 @@ it disappears.
   updates as streams come and go.
 - **Control Center** — a tile with an inline master slider and a full mixer
   page, using the same state as the bar.
-- **Eye candy** — gradient level bars with glowing thumbs, animated arc rings,
-  real Cava spectrum bars, animated chips and tab fades. All animation respects
-  the shell's reduce-motion setting; the spectrum itself only moves when Cava
+- **Eye candy** — accent level sliders, animated arc rings, real Cava
+  spectrum bars, animated chips and tab fades. All animation respects the
+  shell's reduce-motion setting; the spectrum itself only moves when Cava
   reports live audio.
 - **Reduced motion** — disable animations in the settings if you prefer a
   calm, static mixer.
 
 ## Requirements
 
-- DMS / Dux Modular Shell **2.0.0** or newer
+- DMS / Dux Modular Shell **2.0.0** or newer; tested on **2.1.0**
+  (CachyOS, Quickshell 0.3.2)
 - PipeWire with `pipewire-pulse` and `pw-metadata` (`pipewire-utils` on
   distros that split the tools out of the main package)
 - Optional: `cava` built with PipeWire input support for the live spectrum;
@@ -77,7 +78,6 @@ DMS discovers the folder automatically; there is no registry entry to edit.
 | **Inputs** tab | Microphones plus apps that are recording |
 | Drag a level bar | Set that app's or device's volume |
 | Scroll a level bar | Step the volume by the configured amount |
-| Double-click a level bar | Reset to 100% |
 | Speaker / mic icon | Mute or unmute that stream |
 | Ring or percentage on the master card | Click to mute, scroll to adjust |
 
@@ -147,8 +147,8 @@ DMS discovers the folder automatically; there is no registry entry to edit.
   is hidden. Switching outputs restarts the capture stream on the new sink.
 - Each spectrum bar is a single item, and animation behaviors are disabled when
   animations or reduce-motion are off.
-- Row bars use a lightweight translucent halo instead of an offscreen blur
-  layer per thumb.
+- Row sliders use DMS's `DSlider`, so focus rings, keyboard handling and
+  reduce-motion behavior come from the shell.
 - The master halo is static; only the volume ring animates when its value
   changes.
 - No polling, temporary config files, Python, or helper daemons are used.
@@ -163,7 +163,7 @@ DMS discovers the folder automatically; there is no registry entry to edit.
 - An app that is not currently holding a stream has no row — same as
   pavucontrol.
 - The Cava spectrum reflects the whole default output, not each app; app rows
-  use their own gradient fill instead of a fake per-app meter.
+  use their own level slider instead of a fake per-app meter.
 - The live spectrum needs Cava with native PipeWire input. Without it, the
   bars remain an honest static shape; no synthetic levels are shown.
 - Volume above 100% is passed to PipeWire as-is; some devices or apps may
