@@ -32,7 +32,7 @@ it disappears.
 
 ## Requirements
 
-- DMS / Dux Modular Shell **1.7.0** or newer
+- DMS / Dux Modular Shell **2.0.0** or newer
 - PipeWire with `pipewire-pulse` (the normal setup on any current desktop)
 - Optional: `cava` built with PipeWire input support for the live spectrum;
   without it, or while the output is silent, the bars stay static
