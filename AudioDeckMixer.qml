@@ -165,7 +165,7 @@ Column {
                     StyledText {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: "VOLUME"
-                        font.pixelSize: 8
+                        font.pixelSize: Theme.fontSizeSmall - 2
                         font.letterSpacing: 1.3
                         color: Theme.surfaceVariantText
                     }
@@ -194,7 +194,7 @@ Column {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         text: "OUTPUT"
-                        font.pixelSize: 9
+                        font.pixelSize: Theme.fontSizeSmall - 1
                         font.letterSpacing: 1.2
                         font.weight: Font.Medium
                         color: Theme.surfaceVariantText
@@ -229,7 +229,7 @@ Column {
                             StyledText {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: AudioDeckService.masterMuted ? "Muted" : "Live"
-                                font.pixelSize: 10
+                                font.pixelSize: Theme.fontSizeSmall
                                 font.weight: Font.Medium
                                 color: AudioDeckService.masterMuted ? Theme.error : Theme.primary
                             }

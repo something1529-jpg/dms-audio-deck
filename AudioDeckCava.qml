@@ -7,22 +7,39 @@ import qs.Common
 import qs.Services
 import "."
 
-// A private Cava instance for Audio Deck. The shell's CavaService feeds Cava
-// through its default Pulse input, which on this host watches the muted Rift
-// microphone. Here Cava uses native PipeWire and an explicit monitor source for
-// the current default sink, the same signal the speakers are playing.
+// A private Cava instance for Audio Deck. The shell's CavaService watches its
+// default Pulse input, which can be a microphone; this instance reads the
+// monitor of the explicit default output sink so the bars match what is audible.
 Singleton {
     id: root
 
     // Every visible spectrum holds one reference. Cava runs only while at
-    // least one is on screen, so hidden popouts and detail pages cost nothing.
+    // least one is on screen, plus a short linger so a popout morph does not
+    // recreate the capture stream and change the PipeWire quantum.
     property int refCount: 0
     property list<int> values: [0, 0, 0, 0, 0, 0]
     property bool cavaAvailable: false
 
     readonly property string sinkName: AudioService.sink?.name ?? ""
-    readonly property bool somethingPlaying: AudioDeckService.streams.length > 0
+    readonly property bool somethingPlaying: {
+        const streams = AudioDeckService.streams;
+        for (let i = 0; i < streams.length; ++i) {
+            if (!AudioDeckService.paused(streams[i]))
+                return true;
+        }
+        return false;
+    }
     readonly property bool wanted: refCount > 0 && sinkName !== "" && somethingPlaying
+
+    onRefCountChanged: {
+        if (refCount > 0) {
+            lingerTimer.stop();
+            return;
+        }
+        values = [0, 0, 0, 0, 0, 0];
+        if (cava.running)
+            lingerTimer.restart();
+    }
 
     function acquire() {
         refCount += 1;
@@ -44,14 +61,28 @@ Singleton {
         }
     }
 
+    Timer {
+        id: lingerTimer
+        interval: 30000
+        repeat: false
+    }
+
     Process {
         id: cava
-        running: root.cavaAvailable && root.wanted
+        running: root.cavaAvailable && (root.wanted || lingerTimer.running)
+
+        // Cava asks for a small buffer when it starts. Keep the graph quantum
+        // stable, as the shell's CavaService does, so opening the mixer does
+        // not produce an audible latency change on affected hardware.
+        environment: ({
+            "PIPEWIRE_LATENCY": "2400/48000",
+            "PULSE_LATENCY_MSEC": "50"
+        })
 
         // The config is passed through file descriptor 3, so there is no
-        // temporary configuration file to leave behind. native PipeWire reads
-        // the explicit sink monitor rather than the default source.
-        command: ["bash", "-c", `exec 3<<'CAVA'
+        // temporary configuration file to leave behind. The sink name is a
+        // positional argument, never interpolated into shell source.
+        command: ["bash", "-c", `exec 3<<CAVA
 [general]
 framerate=8
 bars=6
@@ -63,7 +94,7 @@ higher_cutoff_freq=12000
 
 [input]
 method=pipewire
-source=${root.sinkName}.monitor
+source="$1.monitor"
 active=1
 
 [output]
@@ -80,7 +111,7 @@ gravity=80
 ignore=1
 monstercat=1.5
 CAVA
-exec cava -p /dev/fd/3`]
+exec cava -p /dev/fd/3`, "audio-deck-cava", root.sinkName]
 
         stdout: SplitParser {
             onRead: function (line) {

@@ -16,7 +16,8 @@
     "settings": "./AudioDeckSettings.qml",
     "requires_dms": ">=2.0.0",
     "dependencies": [
-        "pipewire"
+        "pipewire",
+        "cava"
     ],
     "permissions": [
         "settings_read",
