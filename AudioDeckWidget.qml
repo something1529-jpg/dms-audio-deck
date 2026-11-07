@@ -35,7 +35,7 @@ PluginComponent {
 
     ccExpandedContent: Component {
         Column {
-            width: parent ? parent.width : 300
+            width: parent ? parent.width : Theme.iconSize * 10
             spacing: Theme.spacingXS
 
             Item {

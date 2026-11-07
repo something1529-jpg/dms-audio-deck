@@ -64,8 +64,7 @@ Item {
         }
     }
 
-    // A translucent halo is visually equivalent to the old blurred layer at a
-    // fraction of the cost: no offscreen texture per row while idle.
+    // Translucent halo behind the thumb; no offscreen texture per row.
     Rectangle {
         id: thumbGlow
         anchors.centerIn: thumb

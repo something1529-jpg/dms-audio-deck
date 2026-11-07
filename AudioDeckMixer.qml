@@ -185,7 +185,6 @@ Column {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: "VOLUME"
                         font.pixelSize: Theme.fontSizeXSmall
-                        font.letterSpacing: 1.3
                         color: Theme.surfaceVariantText
                     }
                 }
@@ -214,7 +213,6 @@ Column {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "OUTPUT"
                         font.pixelSize: Theme.fontSizeXSmall
-                        font.letterSpacing: 1.2
                         font.weight: Font.Medium
                         color: Theme.surfaceVariantText
                     }

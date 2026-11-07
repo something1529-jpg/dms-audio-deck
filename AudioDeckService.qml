@@ -27,7 +27,7 @@ Singleton {
     // Model caches. They live in plain JS objects so a binding can memoise
     // without assigning a QML property (which would create a binding loop).
     // Reusing the previous array keeps Repeater delegates alive when only node
-    // properties changed, so a volume tick no longer recreates every row.
+    // properties change.
     property var streamCache: ({ list: [] })
     property var captureCache: ({ list: [] })
     property var sinkCache: ({ list: [], defaultName: "" })

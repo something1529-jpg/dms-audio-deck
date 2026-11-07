@@ -36,13 +36,15 @@ it disappears.
 ## Requirements
 
 - DMS / Dux Modular Shell **2.0.0** or newer
-- PipeWire with `pipewire-pulse` (the normal setup on any current desktop)
+- PipeWire with `pipewire-pulse` and `pw-metadata` (`pipewire-utils` on
+  distros that split the tools out of the main package)
 - Optional: `cava` built with PipeWire input support for the live spectrum;
   without it, or while the output is silent, the bars stay static
 
-No Python and no shell helper scripts. Cava itself is the only optional process;
-it runs only while a spectrum is mounted, visible, and an app is actually
-playing audio.
+No Python and no shell helper scripts. Cava is the only long-running optional
+process; it runs only while a spectrum is mounted, visible, and an app is
+actually playing audio. `pw-metadata` runs briefly when switching the default
+input.
 
 ## Installation
 
@@ -149,8 +151,9 @@ DMS discovers the folder automatically; there is no registry entry to edit.
   layer per thumb.
 - The master halo is static; only the volume ring animates when its value
   changes.
-- No polling, temporary config files, Python, or helper daemons beyond the
-  optional Cava process are used.
+- No polling, temporary config files, Python, or helper daemons are used.
+  `pw-metadata` is a short-lived command when the default input changes; Cava
+  is the optional capture process.
 
 ## Limitations
 
