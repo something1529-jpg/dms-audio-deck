@@ -50,6 +50,9 @@ git clone https://github.com/something1529-jpg/dms-audio-deck.git \
   ~/.config/DankMaterialShell/plugins/audioDeck
 ```
 
+The clone destination is intentionally named `audioDeck`; DMS identifies the
+plugin by the `id` in `plugin.json`, not by the repository name.
+
 Then open **Settings → Plugins**, find **Audio Deck**, and:
 
 1. Add it as a bar widget (Bar settings), and/or
