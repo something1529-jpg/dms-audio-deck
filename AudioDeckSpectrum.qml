@@ -51,19 +51,27 @@ Item {
         }
     }
 
-    Row {
+    Item {
         anchors.centerIn: parent
-        spacing: root.gap
+        width: root.barCount * root.cellWidth + Math.max(0, root.barCount - 1) * root.gap
+        height: root.maxBarHeight
 
         Repeater {
             model: root.barCount
 
-            delegate: Item {
+            // One item per bar: the bar itself is the delegate, positioned from
+            // the bottom. No wrapper item and no extra scene-graph node.
+            delegate: Rectangle {
                 id: cell
                 required property int index
 
+                x: cell.index * (root.cellWidth + root.gap)
                 width: root.cellWidth
-                height: root.maxBarHeight
+                height: Math.max(root.minBarHeight, root.maxBarHeight * level)
+                y: root.maxBarHeight - height
+                radius: Math.min(width / 2, Theme.spacingXXS)
+                color: root.barColor
+                opacity: root.active ? (root.live ? 0.9 : 0.45) : 0.3
 
                 readonly property real level: {
                     if (!root.active)
@@ -80,15 +88,6 @@ Item {
                     // Static, deterministic idle shape. No timer, no phase, no
                     // synthetic motion; the bars simply sit at these heights.
                     return 0.16 + ((cell.index * 7) % 5) * 0.035;
-                }
-
-                Rectangle {
-                    width: parent.width
-                    height: Math.max(root.minBarHeight, root.maxBarHeight * cell.level)
-                    anchors.bottom: parent.bottom
-                    radius: Math.min(width / 2, Theme.spacingXXS)
-                    color: root.barColor
-                    opacity: root.active ? (root.live ? 0.9 : 0.45) : 0.3
                 }
             }
         }

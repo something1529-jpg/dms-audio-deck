@@ -37,6 +37,7 @@ Item {
         color: rowHover.hovered ? Theme.withAlpha(Theme.primary, 0.06) : "transparent"
 
         Behavior on color {
+            enabled: AudioDeckService.motion
             ColorAnimation { duration: 140 }
         }
     }
@@ -64,6 +65,7 @@ Item {
                 color: Theme.withAlpha(Theme.primary, root.audio && !root.muted ? 0.14 : 0.05)
 
                 Behavior on color {
+                    enabled: AudioDeckService.motion
                     ColorAnimation { duration: 160 }
                 }
 

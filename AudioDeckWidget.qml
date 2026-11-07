@@ -23,7 +23,7 @@ PluginComponent {
             return "Waiting for PipeWire";
         if (!AudioDeckService.master)
             return "No output device";
-        const apps = AudioDeckService.streams.length;
+        const apps = AudioDeckService.playbackCount;
         return AudioDeckService.masterPercent + "%" + (apps > 0 ? " · " + apps + (apps === 1 ? " app" : " apps") : "");
     }
     ccWidgetIsActive: AudioDeckService.master !== null && !AudioDeckService.masterMuted

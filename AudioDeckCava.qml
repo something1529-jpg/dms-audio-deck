@@ -14,23 +14,20 @@ Singleton {
     id: root
 
     // Every visible spectrum holds one reference. Cava runs only while at
-    // least one is on screen, plus a short linger so a popout morph does not
-    // recreate the capture stream and change the PipeWire quantum.
+    // least one is on screen, plus a very short linger so a popout morph does
+    // not recreate the capture stream and change the PipeWire quantum.
     property int refCount: 0
     property list<int> values: [0, 0, 0, 0, 0, 0]
     property bool cavaAvailable: false
+    property bool probed: false
+    property bool probeRequested: false
 
     readonly property string sinkName: AudioService.sink?.name ?? ""
-    readonly property bool somethingPlaying: {
-        const streams = AudioDeckService.streams;
-        for (let i = 0; i < streams.length; ++i) {
-            if (!AudioDeckService.paused(streams[i]) && (streams[i]?.audio?.volume ?? 0) > 0)
-                return true;
-        }
-        return false;
-    }
     // Only spend a capture stream on audio that can actually be heard.
-    readonly property bool audible: somethingPlaying && !AudioDeckService.masterMuted && AudioDeckService.masterVolume > 0
+    readonly property bool audible: AudioDeckService.audiblePlayback && !AudioDeckService.masterMuted && AudioDeckService.masterVolume > 0
+    // refCount is checked first so the whole audio scan is skipped while no
+    // spectrum is mounted: JS short-circuits, and QML therefore never tracks
+    // the playback properties when nothing is watching.
     readonly property bool wanted: refCount > 0 && sinkName !== "" && audible
     // 6 fps is plenty for the small bars; drop further on battery.
     readonly property int framerate: BatteryService.isPluggedIn ? 6 : 4
@@ -71,27 +68,33 @@ Singleton {
 
     function acquire() {
         refCount += 1;
+        probeRequested = true;
     }
 
     function release() {
         refCount = Math.max(0, refCount - 1);
     }
 
-    // Cava is optional. No binary means no process, and the spectrum stays
-    // static rather than inventing levels.
+    // Cava is optional. The probe is lazy: a shell that never shows the
+    // spectrum never spawns even this one-shot shell.
     Process {
         id: probe
-        running: true
-        command: ["sh", "-c", "command -v cava"]
+        // Latched, so a quick open/close cannot kill the probe halfway and
+        // leave Cava permanently marked as missing.
+        running: root.probeRequested && !root.probed
+        command: ["sh", "-c", "command -v cava >/dev/null 2>&1"]
 
         onExited: function (exitCode) {
+            root.probed = true;
             root.cavaAvailable = exitCode === 0;
         }
     }
 
+    // Just long enough to bridge a popout open/close; anything longer is a
+    // capture stream burning power for nothing.
     Timer {
         id: lingerTimer
-        interval: 30000
+        interval: 3000
         repeat: false
     }
 
@@ -118,8 +121,9 @@ Singleton {
 
         // The config is passed through file descriptor 3, so there is no
         // temporary configuration file to leave behind. The sink name is a
-        // positional argument, never interpolated into shell source.
-        command: ["bash", "-c", `exec 3<<CAVA
+        // positional argument, never interpolated into shell source. `sh` is
+        // enough for the heredoc, so no bash process is kept alive.
+        command: ["sh", "-c", `exec 3<<CAVA
 [general]
 framerate=${root.framerate}
 bars=6

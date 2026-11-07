@@ -15,6 +15,7 @@ Item {
     property real resetValue: 100
     property color accent: Theme.primary
     property color trackColor: Theme.withAlpha(Theme.onSurface, 0.10)
+    readonly property bool motion: animate && !(typeof SettingsData !== "undefined" && SettingsData.reduceMotion)
 
     signal moved(real newValue)
     signal committed(real newValue)
@@ -52,11 +53,12 @@ Item {
             }
 
             Behavior on width {
-                enabled: root.animate && !dragArea.pressed && !(typeof SettingsData !== "undefined" && SettingsData.reduceMotion)
+                enabled: root.motion && !dragArea.pressed
                 NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
             }
 
             Behavior on opacity {
+                enabled: root.motion
                 NumberAnimation { duration: 160 }
             }
         }
@@ -89,15 +91,17 @@ Item {
         opacity: root.enabled ? 1 : 0.4
 
         Behavior on x {
-            enabled: root.animate && !dragArea.pressed && !(typeof SettingsData !== "undefined" && SettingsData.reduceMotion)
+            enabled: root.motion && !dragArea.pressed
             NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
         }
 
         Behavior on scale {
+            enabled: root.motion
             NumberAnimation { duration: 140; easing.type: Easing.OutBack }
         }
 
         Behavior on width {
+            enabled: root.motion
             NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
         }
 

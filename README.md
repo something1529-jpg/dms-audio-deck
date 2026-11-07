@@ -119,12 +119,23 @@ DMS discovers the folder automatically; there is no registry entry to edit.
   master output is neither muted nor at 0%. It runs at 6 updates per second on
   AC and 4 on battery; repeated silent frames are ignored. There is no separate
   QML animation loop.
+- The Cava binary is probed once, lazily, only after a spectrum is actually
+  shown. With the live spectrum off, or on a shell that never opens the mixer,
+  no helper process is spawned at all.
+- Cava starts through `sh`, not `bash`, and its config still arrives on a file
+  descriptor instead of a temporary file.
 - When Cava has no signal, the bars use a deterministic static shape. There is
   no idle timer, phase animation, or invented wobble.
+- Stream and device lists keep their identity between PipeWire updates, so a
+  volume tick updates existing rows instead of recreating them. The bar and
+  Control Center labels use a precomputed app count instead of sorting the
+  stream list.
 - Closed popouts and Control Center detail pages release their Cava reference;
-  the short linger that avoids a popout-morph restart only applies while audio
-  is actually audible. The bar spectrum also releases it when its window is
-  hidden. Switching outputs restarts the capture stream on the new sink.
+  the 3-second linger that avoids a popout-morph restart only applies while
+  audio is actually audible. The bar spectrum also releases it when its window
+  is hidden. Switching outputs restarts the capture stream on the new sink.
+- Each spectrum bar is a single item, and animation behaviors are disabled when
+  animations or reduce-motion are off.
 - Row bars use a lightweight translucent halo instead of an offscreen blur
   layer per thumb.
 - The master halo is static; only the volume ring animates when its value

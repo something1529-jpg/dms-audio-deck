@@ -21,6 +21,15 @@ Singleton {
 
     property var pendingDefaultSource: null
 
+    // Model caches. They live in plain JS objects so a binding can memoise
+    // without assigning a QML property (which would create a binding loop).
+    // Reusing the previous array keeps Repeater delegates alive when only node
+    // properties changed, so a volume tick no longer recreates every row.
+    property var streamCache: ({ list: [] })
+    property var captureCache: ({ list: [] })
+    property var sinkCache: ({ list: [], defaultName: "" })
+    property var sourceCache: ({ list: [] })
+
     readonly property bool ready: AudioService.pipewireReady
     readonly property var master: AudioService.sink
     readonly property var mic: AudioService.source
@@ -29,14 +38,45 @@ Singleton {
     readonly property real masterVolume: master?.audio?.volume ?? 0
     readonly property int masterPercent: Math.round(masterVolume * 100)
     readonly property bool masterMuted: master?.audio?.muted ?? false
+    readonly property bool motion: animations && !(typeof SettingsData !== "undefined" && SettingsData.reduceMotion)
+
+    // One pass over the nodes feeds both the bar/CC label and the Cava
+    // lifecycle. The label must not sort the whole stream list, and Cava must
+    // not either; this keeps idle updates allocation-free.
+    readonly property var playbackStats: {
+        let count = 0;
+        let audible = false;
+        const list = nodes;
+        for (let i = 0; list && i < list.length; ++i) {
+            const node = list[i];
+            if (!isPlaybackStream(node))
+                continue;
+            ++count;
+            if (!audible && !paused(node) && (node.audio?.volume ?? 0) > 0)
+                audible = true;
+        }
+        return {
+            "count": count,
+            "audible": audible
+        };
+    }
+    readonly property int playbackCount: playbackStats.count
+    readonly property bool audiblePlayback: playbackStats.audible
 
     // Playback streams: one row per app that is currently sending audio.
     readonly property var streams: {
+        const cache = streamCache;
         const list = [];
-        for (const node of nodes || []) {
+        const nodeList = nodes || [];
+        for (let i = 0; i < nodeList.length; ++i) {
+            const node = nodeList[i];
             if (isPlaybackStream(node))
                 list.push(node);
         }
+        // Only rebuild the model when membership changed; volume and mute
+        // updates ride the existing delegates instead of recreating them.
+        if (sameNodes(cache.list, list))
+            return cache.list;
         list.sort((a, b) => {
             const ap = paused(a) ? 1 : 0;
             const bp = paused(b) ? 1 : 0;
@@ -48,22 +88,32 @@ Singleton {
                 return am - bm;
             return appName(a).localeCompare(appName(b));
         });
+        cache.list = list;
         return list;
     }
 
     // Capture streams (apps recording, e.g. browser tabs or voice chat).
     readonly property var recordings: {
+        const cache = captureCache;
         const list = [];
-        for (const node of nodes || []) {
+        const nodeList = nodes || [];
+        for (let i = 0; i < nodeList.length; ++i) {
+            const node = nodeList[i];
             if (isCaptureStream(node))
                 list.push(node);
         }
+        if (sameNodes(cache.list, list))
+            return cache.list;
+        cache.list = list;
         return list;
     }
 
     readonly property var sinks: {
+        const cache = sinkCache;
         const list = [];
-        for (const node of nodes || []) {
+        const nodeList = nodes || [];
+        for (let i = 0; i < nodeList.length; ++i) {
+            const node = nodeList[i];
             if (!node || !node.audio || node.isStream || !node.isSink)
                 continue;
             if (isHidden(node.name))
@@ -71,6 +121,8 @@ Singleton {
             list.push(node);
         }
         const defaultName = AudioService.sink?.name ?? "";
+        if (cache.defaultName === defaultName && sameNodes(cache.list, list))
+            return cache.list;
         list.sort((a, b) => {
             if (a.name === defaultName)
                 return -1;
@@ -78,19 +130,42 @@ Singleton {
                 return 1;
             return displayName(a).localeCompare(displayName(b));
         });
+        cache.list = list;
+        cache.defaultName = defaultName;
         return list;
     }
 
     readonly property var sources: {
+        const cache = sourceCache;
         const list = [];
-        for (const node of nodes || []) {
+        const nodeList = nodes || [];
+        for (let i = 0; i < nodeList.length; ++i) {
+            const node = nodeList[i];
             if (!node || !node.audio || node.isStream || node.isSink)
                 continue;
             if (isMonitor(node) || isHidden(node.name))
                 continue;
             list.push(node);
         }
+        if (sameNodes(cache.list, list))
+            return cache.list;
+        cache.list = list;
         return list;
+    }
+
+    // True when both arrays hold the same nodes in the same order. Comparing
+    // membership (not the arrays themselves) is what lets the cached model
+    // survive PipeWire updates that only touch properties.
+    function sameNodes(a, b) {
+        if (a === b)
+            return true;
+        if (!a || !b || a.length !== b.length)
+            return false;
+        for (let i = 0; i < a.length; ++i) {
+            if (a[i] !== b[i])
+                return false;
+        }
+        return true;
     }
 
     function isPlaybackStream(node) {

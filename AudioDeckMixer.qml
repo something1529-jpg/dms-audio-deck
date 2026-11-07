@@ -12,13 +12,13 @@ Column {
     property real listHeight: Theme.listItemTwoLineHeight * 4
     property string tab: "apps"
 
-    readonly property bool animate: AudioDeckService.animations && !(typeof SettingsData !== "undefined" && SettingsData.reduceMotion)
+    readonly property bool animate: AudioDeckService.motion
 
     readonly property var tabs: [
         {
             key: "apps",
             label: "Apps",
-            count: AudioDeckService.streams.length
+            count: AudioDeckService.playbackCount
         },
         {
             key: "output",
@@ -32,12 +32,33 @@ Column {
         }
     ]
 
+    // Memoised so a volume tick does not hand Repeater a brand new array and
+    // force every row to be rebuilt.
+    property var modelCache: ({
+        tab: "",
+        list: []
+    })
+
     readonly property var currentNodes: {
-        if (tab === "output")
-            return AudioDeckService.sinks;
-        if (tab === "input")
-            return AudioDeckService.sources.concat(AudioDeckService.recordings);
-        return AudioDeckService.streams;
+        const cache = modelCache;
+        const next = tab === "output" ? AudioDeckService.sinks : (tab === "input" ? AudioDeckService.sources.concat(AudioDeckService.recordings) : AudioDeckService.streams);
+        if (cache.tab === tab && sameList(cache.list, next))
+            return cache.list;
+        cache.tab = tab;
+        cache.list = next;
+        return next;
+    }
+
+    function sameList(a, b) {
+        if (a === b)
+            return true;
+        if (!a || !b || a.length !== b.length)
+            return false;
+        for (let i = 0; i < a.length; ++i) {
+            if (a[i] !== b[i])
+                return false;
+        }
+        return true;
     }
 
     readonly property string emptyTitle: tab === "apps" ? "Nothing playing" : (tab === "output" ? "No output devices" : "No inputs")
@@ -210,6 +231,7 @@ Column {
                         color: AudioDeckService.masterMuted ? Theme.withAlpha(Theme.error, 0.16) : Theme.withAlpha(Theme.primary, 0.12)
 
                         Behavior on color {
+                            enabled: root.animate
                             ColorAnimation { duration: 160 }
                         }
 

@@ -3,7 +3,7 @@
     "id": "audioDeck",
     "name": "Audio Deck",
     "description": "A pavucontrol-style per-app and per-device mixer with Control Center integration, input/capture controls, and an optional live Cava spectrum.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "author": "ghost",
     "license": "MIT",
     "icon": "graphic_eq",
