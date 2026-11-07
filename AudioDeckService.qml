@@ -52,7 +52,7 @@ Singleton {
             if (!isPlaybackStream(node))
                 continue;
             ++count;
-            if (!audible && !paused(node) && (node.audio?.volume ?? 0) > 0)
+            if (!audible && !paused(node) && !node.audio?.muted && (node.audio?.volume ?? 0) > 0)
                 audible = true;
         }
         return {

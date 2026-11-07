@@ -172,7 +172,6 @@ Column {
 
                 Column {
                     anchors.centerIn: parent
-                    spacing: 0
 
                     StyledText {
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -288,11 +287,11 @@ Column {
 
                 AudioDeckSpectrum {
                     width: parent.width
-                    height: root.compact ? 16 : 20
+                    height: root.compact ? Theme.iconSizeSmall : Theme.iconSizeMedium
                     maxBarHeight: height
-                    minBarHeight: 2
+                    minBarHeight: Theme.spacingXXS
                     barCount: 24
-                    gap: 2
+                    gap: Theme.spacingXXS
                     stretch: true
                     active: AudioDeckService.master !== null && !AudioDeckService.masterMuted
                     enabled: AudioDeckService.visualizer

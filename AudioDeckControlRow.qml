@@ -161,9 +161,10 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: width / 2
-                    color: muteHover.hovered ? Theme.withAlpha(root.muted ? Theme.error : Theme.primary, 0.14) : "transparent"
+                    color: muteHover.containsMouse ? Theme.withAlpha(root.muted ? Theme.error : Theme.primary, 0.14) : "transparent"
 
                     Behavior on color {
+                        enabled: AudioDeckService.motion
                         ColorAnimation { duration: 140 }
                     }
                 }

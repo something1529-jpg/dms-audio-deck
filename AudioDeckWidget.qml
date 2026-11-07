@@ -93,7 +93,7 @@ PluginComponent {
     horizontalBarPill: Component {
         Item {
             implicitWidth: pillRow.implicitWidth + Theme.spacingXS * 2
-            implicitHeight: pillRow.implicitHeight + 4
+            implicitHeight: pillRow.implicitHeight + Theme.spacingXXS * 2
 
             Row {
                 id: pillRow
@@ -109,7 +109,7 @@ PluginComponent {
                         anchors.fill: parent
                         value: AudioDeckService.masterPercent
                         maxValue: AudioDeckService.maxVolume
-                        strokeWidth: 2
+                        strokeWidth: Theme.outlineWidth * 2
                         animated: AudioDeckService.animations
                         ringColor: AudioDeckService.masterMuted ? Theme.surfaceVariantText : Theme.primary
                     }
@@ -165,8 +165,8 @@ PluginComponent {
 
     verticalBarPill: Component {
         Item {
-            implicitWidth: 24
-            implicitHeight: verticalColumn.implicitHeight + 2
+            implicitWidth: Theme.iconSizeMedium + Theme.spacingXXS * 2
+            implicitHeight: verticalColumn.implicitHeight + Theme.spacingXXS
 
             Column {
                 id: verticalColumn
@@ -182,7 +182,7 @@ PluginComponent {
                         anchors.fill: parent
                         value: AudioDeckService.masterPercent
                         maxValue: AudioDeckService.maxVolume
-                        strokeWidth: 2
+                        strokeWidth: Theme.outlineWidth * 2
                         animated: AudioDeckService.animations
                         ringColor: AudioDeckService.masterMuted ? Theme.surfaceVariantText : Theme.primary
                     }
