@@ -28,8 +28,8 @@ PluginComponent {
     }
     ccWidgetIsActive: AudioDeckService.master !== null && !AudioDeckService.masterMuted
     ccWidgetIsToggle: false
-    ccExpandedMinimumHeight: 78
-    ccDetailHeight: 470
+    ccExpandedMinimumHeight: Theme.listItemTwoLineHeight + Theme.spacingXXS * 3
+    ccDetailHeight: Theme.iconSize * 19 + Theme.spacingL
 
     onCcWidgetToggled: AudioDeckService.toggleMute(AudioDeckService.master)
 
@@ -40,7 +40,7 @@ PluginComponent {
 
             Item {
                 width: parent.width
-                height: 18
+                height: Theme.iconSizeSmall + Theme.spacingXXS
 
                 StyledText {
                     anchors.left: parent.left
@@ -84,7 +84,7 @@ PluginComponent {
                 anchors.fill: parent
                 anchors.margins: Theme.spacingM
                 compact: true
-                listHeight: 270
+                listHeight: Theme.listItemTwoLineHeight * 3.5
             }
         }
     }
@@ -98,11 +98,11 @@ PluginComponent {
             Row {
                 id: pillRow
                 anchors.centerIn: parent
-                spacing: 3
+                spacing: Theme.spacingXS - Theme.spacingXXS / 2
 
                 Item {
-                    width: 20
-                    height: 20
+                    width: Theme.iconSizeMedium
+                    height: Theme.iconSizeMedium
                     anchors.verticalCenter: parent.verticalCenter
 
                     AudioDeckRing {
@@ -117,26 +117,26 @@ PluginComponent {
                     DIcon {
                         anchors.centerIn: parent
                         name: root.masterIcon
-                        size: 13
+                        size: Theme.iconSizeSmall - Theme.spacingXXS
                         color: AudioDeckService.masterMuted ? Theme.surfaceVariantText : (AudioDeckService.master ? Theme.primary : Theme.surfaceVariantText)
                     }
                 }
 
                 Item {
-                    width: 18
-                    height: 16
+                    width: Theme.iconSizeMedium - Theme.spacingXXS
+                    height: Theme.iconSizeSmall
                     anchors.verticalCenter: parent.verticalCenter
                     visible: AudioDeckService.visualizer && !AudioDeckService.masterMuted && AudioDeckService.master !== null
 
                     AudioDeckSpectrum {
                         anchors.centerIn: parent
-                        width: 18
-                        height: 14
+                        width: Theme.iconSizeMedium - Theme.spacingXXS
+                        height: Theme.iconSizeSmall - Theme.spacingXXS
                         barCount: 5
-                        barWidth: 2
-                        gap: 2
-                        maxBarHeight: 14
-                        minBarHeight: 2
+                        barWidth: Theme.spacingXXS
+                        gap: Theme.spacingXXS
+                        maxBarHeight: Theme.iconSizeSmall - Theme.spacingXXS
+                        minBarHeight: Theme.spacingXXS
                         active: !AudioDeckService.masterMuted && AudioDeckService.master !== null
                         enabled: AudioDeckService.visualizer
                     }
@@ -171,11 +171,11 @@ PluginComponent {
             Column {
                 id: verticalColumn
                 anchors.centerIn: parent
-                spacing: 1
+                spacing: Theme.spacingXXS / 2
 
                 Item {
-                    width: 20
-                    height: 20
+                    width: Theme.iconSizeMedium
+                    height: Theme.iconSizeMedium
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     AudioDeckRing {
@@ -190,7 +190,7 @@ PluginComponent {
                     DIcon {
                         anchors.centerIn: parent
                         name: root.masterIcon
-                        size: 13
+                        size: Theme.iconSizeSmall - Theme.spacingXXS
                         color: AudioDeckService.masterMuted ? Theme.surfaceVariantText : Theme.primary
                     }
                 }
@@ -227,11 +227,11 @@ PluginComponent {
             AudioDeckMixer {
                 width: parent.width
                 compact: false
-                listHeight: 300
+                listHeight: Theme.listItemTwoLineHeight * 4
             }
         }
     }
 
-    popoutWidth: 400
-    popoutHeight: 600
+    popoutWidth: Theme.iconSize * 16 + Theme.spacingL
+    popoutHeight: Theme.iconSize * 24 + Theme.spacingXL
 }

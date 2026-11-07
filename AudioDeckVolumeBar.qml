@@ -19,7 +19,7 @@ Item {
     signal moved(real newValue)
     signal committed(real newValue)
 
-    implicitHeight: 22
+    implicitHeight: Theme.iconSize
     readonly property real ratio: maxValue <= 0 ? 0 : Math.max(0, Math.min(1, shownValue / maxValue))
     readonly property real shownValue: dragArea.pressed ? dragValue : value
 
@@ -28,7 +28,7 @@ Item {
     Rectangle {
         id: track
         width: parent.width
-        height: 6
+        height: Theme.spacingXS + Theme.spacingXXS
         radius: height / 2
         anchors.verticalCenter: parent.verticalCenter
         color: root.trackColor
@@ -67,7 +67,7 @@ Item {
     Rectangle {
         id: thumbGlow
         anchors.centerIn: thumb
-        width: thumb.width + 8
+        width: thumb.width + Theme.spacingS
         height: width
         radius: width / 2
         color: Theme.withAlpha(root.muted ? Theme.surfaceVariantText : root.accent, 0.20)
@@ -77,13 +77,13 @@ Item {
 
     Rectangle {
         id: thumb
-        width: dragArea.pressed ? 16 : 14
+        width: dragArea.pressed ? Theme.iconSizeSmall : Theme.iconSizeSmall - Theme.spacingXXS
         height: width
         radius: width / 2
         x: Math.max(0, Math.min(parent.width - width, root.ratio * parent.width - width / 2))
         anchors.verticalCenter: parent.verticalCenter
         color: root.muted ? Theme.surfaceVariantText : root.accent
-        border.width: 1
+        border.width: Theme.outlineWidth
         border.color: Theme.withAlpha(Theme.onPrimary, 0.7)
         scale: dragArea.pressed ? 1.18 : (dragArea.containsMouse ? 1.08 : 1)
         opacity: root.enabled ? 1 : 0.4

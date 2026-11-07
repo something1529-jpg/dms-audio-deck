@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import qs.Common
 import qs.Widgets
 import qs.DCommon.Widgets
@@ -10,7 +9,7 @@ Column {
     id: root
 
     property bool compact: false
-    property real listHeight: 300
+    property real listHeight: Theme.listItemTwoLineHeight * 4
     property string tab: "apps"
 
     readonly property bool animate: AudioDeckService.animations && !(typeof SettingsData !== "undefined" && SettingsData.reduceMotion)
@@ -92,7 +91,7 @@ Column {
         implicitHeight: heroRow.implicitHeight + Theme.spacingM * 2
         radius: Theme.cornerRadiusXL
         color: Theme.foregroundColor(Theme.cardSurface)
-        border.width: 1
+        border.width: Theme.outlineWidth
         border.color: Theme.withAlpha(Theme.outline, 0.14)
         clip: true
 
@@ -108,11 +107,11 @@ Column {
 
         // Soft accent bloom in the corner, kept inside the clip.
         Rectangle {
-            width: 170
-            height: 170
+            width: Theme.iconSize * 7
+            height: width
             radius: width / 2
-            x: hero.width - 110
-            y: -80
+            x: hero.width - width * 0.65
+            y: -height * 0.47
             color: Theme.withAlpha(Theme.secondary, 0.10)
         }
 
@@ -127,7 +126,7 @@ Column {
 
             Item {
                 id: ringBox
-                width: root.compact ? 74 : 88
+                width: root.compact ? Theme.iconSize * 3 : Theme.iconSize * 3.5
                 height: width
                 anchors.verticalCenter: parent.verticalCenter
 
@@ -137,7 +136,7 @@ Column {
                     height: parent.width
                     radius: width / 2
                     color: "transparent"
-                    border.width: 1
+                    border.width: Theme.outlineWidth
                     border.color: Theme.withAlpha(Theme.primary, 0.30)
                 }
 
@@ -145,7 +144,7 @@ Column {
                     anchors.fill: parent
                     value: AudioDeckService.masterPercent
                     maxValue: AudioDeckService.maxVolume
-                    strokeWidth: root.compact ? 4 : 5
+                    strokeWidth: Theme.outlineWidth * (root.compact ? 4 : 5)
                     animated: root.animate
                     ringColor: AudioDeckService.masterMuted ? Theme.surfaceVariantText : Theme.primary
                 }
@@ -205,7 +204,7 @@ Column {
                         visible: AudioDeckService.master !== null
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
-                        height: 22
+                        height: Theme.iconSize
                         width: muteChipRow.implicitWidth + Theme.spacingM
                         radius: height / 2
                         color: AudioDeckService.masterMuted ? Theme.withAlpha(Theme.error, 0.16) : Theme.withAlpha(Theme.primary, 0.12)
@@ -217,12 +216,12 @@ Column {
                         Row {
                             id: muteChipRow
                             anchors.centerIn: parent
-                            spacing: 4
+                            spacing: Theme.spacingXS
 
                             DIcon {
                                 anchors.verticalCenter: parent.verticalCenter
                                 name: AudioDeckService.masterMuted ? "volume_off" : "volume_up"
-                                size: 12
+                                size: Theme.fontSizeSmall
                                 color: AudioDeckService.masterMuted ? Theme.error : Theme.primary
                             }
 
@@ -295,7 +294,7 @@ Column {
                 required property var modelData
 
                 width: tabLabel.implicitWidth + Theme.spacingM * 2
-                height: 30
+                height: Theme.iconSize + Theme.spacingXS
                 radius: height / 2
                 color: root.tab === chip.modelData.key ? Theme.primary : (chipHover.containsMouse ? Theme.withAlpha(Theme.primary, 0.10) : "transparent")
 
@@ -328,19 +327,17 @@ Column {
         width: parent.width
         height: root.listHeight
 
-        Flickable {
+        DFlickable {
             id: listFlick
             anchors.fill: parent
             contentHeight: listColumn.implicitHeight
             clip: true
-            boundsBehavior: Flickable.StopAtBounds
-            flickableDirection: Flickable.VerticalFlick
-            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+            fadeEdges: false
 
             Column {
                 id: listColumn
-                width: Math.max(0, listFlick.width - 4)
-                spacing: 2
+                width: Math.max(0, listFlick.width - Theme.spacingXS)
+                spacing: Theme.spacingXXS
 
                 Repeater {
                     model: root.currentNodes
@@ -365,7 +362,7 @@ Column {
 
                 Item {
                     width: parent.width
-                    height: 4
+                    height: Theme.spacingXS
                 }
             }
         }
@@ -379,7 +376,7 @@ Column {
             DIcon {
                 anchors.horizontalCenter: parent.horizontalCenter
                 name: root.tab === "apps" ? "graphic_eq" : (root.tab === "output" ? "speaker" : "mic")
-                size: 28
+                size: Theme.iconSize + Theme.spacingXS
                 color: Theme.withAlpha(Theme.primary, 0.6)
             }
 

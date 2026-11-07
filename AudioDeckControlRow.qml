@@ -57,8 +57,8 @@ Item {
 
             Rectangle {
                 id: iconBox
-                width: 30
-                height: 30
+                width: Theme.iconSize + Theme.spacingXS
+                height: width
                 radius: Theme.cornerRadiusS
                 anchors.verticalCenter: parent.verticalCenter
                 color: Theme.withAlpha(Theme.primary, root.audio && !root.muted ? 0.14 : 0.05)
@@ -71,16 +71,16 @@ Item {
                     anchors.centerIn: parent
                     visible: root.iconValue.startsWith("material:")
                     name: root.iconValue.startsWith("material:") ? root.iconValue.substring(9) : "graphic_eq"
-                    size: 17
+                    size: Theme.iconSizeSmall
                     color: root.muted ? Theme.surfaceVariantText : Theme.primary
                 }
 
                 AppIconRenderer {
                     anchors.centerIn: parent
                     visible: !root.iconValue.startsWith("material:")
-                    width: 20
-                    height: 20
-                    iconSize: 20
+                    width: Theme.iconSizeMedium
+                    height: Theme.iconSizeMedium
+                    iconSize: Theme.iconSizeMedium
                     iconValue: root.iconValue
                     fallbackText: root.title.length > 0 ? root.title.charAt(0).toUpperCase() : "A"
                 }
@@ -90,7 +90,7 @@ Item {
                 id: labelColumn
                 width: Math.max(0, header.width - iconBox.width - (root.isDevice ? defaultButton.width : 0) - percentBox.width - muteButton.width - header.spacing * 4)
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 1
+                spacing: Theme.spacingXXS / 2
 
                 StyledText {
                     width: parent.width
@@ -115,14 +115,14 @@ Item {
             Item {
                 id: defaultButton
                 visible: root.isDevice
-                width: 24
-                height: 24
+                width: Theme.iconSize
+                height: Theme.iconSize
                 anchors.verticalCenter: parent.verticalCenter
 
                 DIcon {
                     anchors.centerIn: parent
                     name: root.isDefault ? "radio_button_checked" : "radio_button_unchecked"
-                    size: 17
+                    size: Theme.iconSizeSmall
                     color: root.isDefault ? Theme.primary : Theme.surfaceVariantText
                 }
 
@@ -136,8 +136,8 @@ Item {
 
             Item {
                 id: percentBox
-                width: 38
-                height: 22
+                width: Theme.iconSize + Theme.spacingL
+                height: Theme.iconSize
                 anchors.verticalCenter: parent.verticalCenter
 
                 StyledText {
@@ -152,8 +152,8 @@ Item {
 
             Item {
                 id: muteButton
-                width: 26
-                height: 26
+                width: Theme.iconSize + Theme.spacingXXS
+                height: width
                 anchors.verticalCenter: parent.verticalCenter
 
                 Rectangle {
@@ -169,7 +169,7 @@ Item {
                 DIcon {
                     anchors.centerIn: parent
                     name: root.muted ? "volume_off" : (root.inputDevice ? "mic" : "volume_up")
-                    size: 16
+                    size: Theme.iconSizeSmall
                     color: root.muted ? Theme.error : Theme.surfaceVariantText
                 }
 

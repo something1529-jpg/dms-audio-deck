@@ -11,10 +11,10 @@ Item {
     id: root
 
     property int barCount: 12
-    property real maxBarHeight: 22
-    property real minBarHeight: 2
-    property real barWidth: 3
-    property real gap: 2
+    property real maxBarHeight: Theme.iconSize - Theme.spacingXXS
+    property real minBarHeight: Theme.spacingXXS
+    property real barWidth: Theme.spacingXS - Theme.spacingXXS / 2
+    property real gap: Theme.spacingXXS
     property bool stretch: false
     property bool active: true
     property bool enabled: true
@@ -37,7 +37,7 @@ Item {
     // attached Window lookups are only valid on Item-derived objects.
     readonly property bool windowVisible: Window.window ? Window.window.visible : true
     readonly property bool live: active && enabled && AudioDeckCava.cavaAvailable && hasSignal && root.visible && root.windowVisible
-    readonly property real cellWidth: stretch && width > 0 ? Math.max(1, (width - (barCount - 1) * gap) / barCount) : barWidth
+    readonly property real cellWidth: stretch && width > 0 ? Math.max(Theme.outlineWidth, (width - (barCount - 1) * gap) / barCount) : barWidth
 
     // Hold the Cava reference only while these bars are mounted and visible.
     // The tiny lifecycle item is the ref token; destroying it releases Cava.
@@ -86,7 +86,7 @@ Item {
                     width: parent.width
                     height: Math.max(root.minBarHeight, root.maxBarHeight * cell.level)
                     anchors.bottom: parent.bottom
-                    radius: Math.min(width / 2, 2)
+                    radius: Math.min(width / 2, Theme.spacingXXS)
                     color: root.barColor
                     opacity: root.active ? (root.live ? 0.9 : 0.45) : 0.3
                 }

@@ -9,7 +9,7 @@ Item {
 
     property real value: 0
     property real maxValue: 100
-    property real strokeWidth: 3
+    property real strokeWidth: Theme.outlineWidth * 3
     property color ringColor: Theme.primary
     property color trackColor: Theme.withAlpha(Theme.onSurface, 0.12)
     property bool animated: true

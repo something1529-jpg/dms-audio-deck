@@ -115,13 +115,16 @@ DMS discovers the folder automatically; there is no registry entry to edit.
 
 ## Performance
 
-- Cava runs at 8 updates per second while a playback stream exists, and
-  repeated silent frames are ignored. There is no separate QML animation loop.
+- Cava runs only while an audible, unpaused playback stream exists and the
+  master output is neither muted nor at 0%. It runs at 6 updates per second on
+  AC and 4 on battery; repeated silent frames are ignored. There is no separate
+  QML animation loop.
 - When Cava has no signal, the bars use a deterministic static shape. There is
   no idle timer, phase animation, or invented wobble.
-- Closed popouts and Control Center detail pages release their Cava reference
-  and stop the process; the bar spectrum also releases it when its window is
-  hidden.
+- Closed popouts and Control Center detail pages release their Cava reference;
+  the short linger that avoids a popout-morph restart only applies while audio
+  is actually audible. The bar spectrum also releases it when its window is
+  hidden. Switching outputs restarts the capture stream on the new sink.
 - Row bars use a lightweight translucent halo instead of an offscreen blur
   layer per thumb.
 - The master halo is static; only the volume ring animates when its value
@@ -138,9 +141,6 @@ DMS discovers the folder automatically; there is no registry entry to edit.
   pavucontrol.
 - The Cava spectrum reflects the whole default output, not each app; app rows
   use their own gradient fill instead of a fake per-app meter.
-- Changing the default sink while a spectrum is already open can leave that
-  Cava process attached to the previous sink until the spectrum is closed and
-  reopened; a spectrum opened after the switch starts on the new sink.
 - The live spectrum needs Cava with native PipeWire input. Without it, the
   bars remain an honest static shape; no synthetic levels are shown.
 - Volume above 100% is passed to PipeWire as-is; some devices or apps may

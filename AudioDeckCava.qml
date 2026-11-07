@@ -24,12 +24,38 @@ Singleton {
     readonly property bool somethingPlaying: {
         const streams = AudioDeckService.streams;
         for (let i = 0; i < streams.length; ++i) {
-            if (!AudioDeckService.paused(streams[i]))
+            if (!AudioDeckService.paused(streams[i]) && (streams[i]?.audio?.volume ?? 0) > 0)
                 return true;
         }
         return false;
     }
-    readonly property bool wanted: refCount > 0 && sinkName !== "" && somethingPlaying
+    // Only spend a capture stream on audio that can actually be heard.
+    readonly property bool audible: somethingPlaying && !AudioDeckService.masterMuted && AudioDeckService.masterVolume > 0
+    readonly property bool wanted: refCount > 0 && sinkName !== "" && audible
+    // 6 fps is plenty for the small bars; drop further on battery.
+    readonly property int framerate: BatteryService.isPluggedIn ? 6 : 4
+    property bool restarting: false
+    property string activeSink: ""
+
+    onSinkNameChanged: {
+        // Some PipeWire events briefly empty the default sink; do not tear
+        // down a working capture stream for that or for a same-name update.
+        if (sinkName === "" || sinkName === activeSink)
+            return;
+        activeSink = sinkName;
+        restartForChange();
+    }
+    onFramerateChanged: restartForChange()
+    onAudibleChanged: {
+        if (!audible)
+            lingerTimer.stop();
+    }
+
+    function restartForChange() {
+        if (!cava.running)
+            return;
+        restarting = true;
+    }
 
     onRefCountChanged: {
         if (refCount > 0) {
@@ -37,8 +63,10 @@ Singleton {
             return;
         }
         values = [0, 0, 0, 0, 0, 0];
-        if (cava.running)
+        if (cava.running && audible)
             lingerTimer.restart();
+        else
+            lingerTimer.stop();
     }
 
     function acquire() {
@@ -67,9 +95,18 @@ Singleton {
         repeat: false
     }
 
+    // Start the replacement only after the old capture stream has exited.
+    Timer {
+        id: restartTimer
+        interval: 120
+        repeat: false
+
+        onTriggered: root.restarting = false
+    }
+
     Process {
         id: cava
-        running: root.cavaAvailable && (root.wanted || lingerTimer.running)
+        running: root.cavaAvailable && !root.restarting && (root.wanted || (lingerTimer.running && root.audible))
 
         // Cava asks for a small buffer when it starts. Keep the graph quantum
         // stable, as the shell's CavaService does, so opening the mixer does
@@ -84,7 +121,7 @@ Singleton {
         // positional argument, never interpolated into shell source.
         command: ["bash", "-c", `exec 3<<CAVA
 [general]
-framerate=8
+framerate=${root.framerate}
 bars=6
 autosens=1
 sensitivity=100
@@ -139,8 +176,11 @@ exec cava -p /dev/fd/3`, "audio-deck-cava", root.sinkName]
         }
 
         onRunningChanged: {
-            if (!running)
-                root.values = [0, 0, 0, 0, 0, 0];
+            if (running)
+                return;
+            root.values = [0, 0, 0, 0, 0, 0];
+            if (root.restarting)
+                restartTimer.restart();
         }
     }
 }
