@@ -43,11 +43,11 @@ playing audio.
 
 ## Installation
 
-Copy the `audioDeck` folder into your plugin directory:
+Clone the plugin repository into your plugin directory:
 
 ```sh
-mkdir -p ~/.config/DankMaterialShell/plugins
-cp -r audioDeck ~/.config/DankMaterialShell/plugins/
+git clone https://github.com/something1529-jpg/dms-audio-deck.git \
+  ~/.config/DankMaterialShell/plugins/audioDeck
 ```
 
 Then open **Settings → Plugins**, find **Audio Deck**, and:
