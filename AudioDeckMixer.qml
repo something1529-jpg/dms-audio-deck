@@ -294,8 +294,10 @@ Column {
                     gap: Theme.spacingXXS
                     stretch: true
                     active: AudioDeckService.master !== null && !AudioDeckService.masterMuted
-                    enabled: AudioDeckService.visualizer
-                    visible: AudioDeckService.visualizer && AudioDeckService.master !== null
+                    enabled: AudioDeckService.mixerVisualizer
+                    visible: AudioDeckService.mixerVisualizer && AudioDeckService.master !== null
+                    fps: AudioDeckService.mixerFps
+                    spectrumRole: "mixer"
                     barColor: Theme.withAlpha(Theme.primary, 0.85)
                 }
             }

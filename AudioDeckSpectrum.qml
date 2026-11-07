@@ -18,13 +18,16 @@ Item {
     property bool stretch: false
     property bool active: true
     property bool enabled: true
+    property string spectrumRole: "mixer"
+    property int fps: 12
+    property var displayValues: []
     property color barColor: Theme.primary
 
     implicitWidth: barCount * barWidth + Math.max(0, barCount - 1) * gap
     implicitHeight: maxBarHeight
 
     readonly property bool hasSignal: {
-        const values = AudioDeckCava.values;
+        const values = root.displayValues;
         if (!values)
             return false;
         for (let i = 0; i < values.length; ++i) {
@@ -36,8 +39,30 @@ Item {
     // Read the window state from this Item, not from inside Loader;
     // attached Window lookups are only valid on Item-derived objects.
     readonly property bool windowVisible: Window.window ? Window.window.visible : true
-    readonly property bool live: active && enabled && AudioDeckCava.cavaAvailable && hasSignal && root.visible && root.windowVisible
+    readonly property bool live: active && enabled && AudioDeckCava.cavaAvailable && AudioDeckCava.streaming && hasSignal && root.visible && root.windowVisible
     readonly property real cellWidth: stretch && width > 0 ? Math.max(Theme.outlineWidth, (width - (barCount - 1) * gap) / barCount) : barWidth
+
+    onFpsChanged: AudioDeckCava.setFps(spectrumRole, fps)
+
+    // The shared Cava capture is stable across panel open/close. Sample it at
+    // this surface's own rate so the bar and mixer can have different redraw
+    // rates without restarting the capture stream.
+    Timer {
+        id: frameTimer
+        interval: Math.max(1, Math.round(1000 / Math.max(1, root.fps)))
+        repeat: true
+        running: root.active && root.enabled && root.visible && root.windowVisible && AudioDeckCava.streaming
+
+        Component.onCompleted: {
+            if (running)
+                root.displayValues = AudioDeckCava.values;
+        }
+        onRunningChanged: {
+            if (running)
+                root.displayValues = AudioDeckCava.values;
+        }
+        onTriggered: root.displayValues = AudioDeckCava.values
+    }
 
     // Hold the Cava reference only while these bars are mounted and visible.
     // The tiny lifecycle item is the ref token; destroying it releases Cava.
@@ -45,8 +70,8 @@ Item {
         active: root.active && root.enabled && root.visible && root.windowVisible
         sourceComponent: Component {
             Item {
-                Component.onCompleted: AudioDeckCava.acquire()
-                Component.onDestruction: AudioDeckCava.release()
+                Component.onCompleted: AudioDeckCava.acquire(root.spectrumRole, root.fps)
+                Component.onDestruction: AudioDeckCava.release(root.spectrumRole)
             }
         }
     }
@@ -77,7 +102,7 @@ Item {
                     if (!root.active)
                         return 0;
                     if (root.live) {
-                        const values = AudioDeckCava.values;
+                        const values = root.displayValues;
                         const pos = values && values.length > 1 && root.barCount > 1 ? cell.index * (values.length - 1) / (root.barCount - 1) : 0;
                         const low = Math.floor(pos);
                         const high = values && values.length > 0 ? Math.min(values.length - 1, low + 1) : 0;

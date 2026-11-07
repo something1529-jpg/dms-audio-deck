@@ -16,9 +16,14 @@ Singleton {
     // Every visible spectrum holds one reference. Cava runs only while at
     // least one is on screen, plus a very short linger so a popout morph does
     // not recreate the capture stream and change the PipeWire quantum.
+    property int widgetRefCount: 0
+    property int mixerRefCount: 0
+    property int widgetFps: 4
+    property int mixerFps: 12
     property int refCount: 0
     property list<int> values: [0, 0, 0, 0, 0, 0]
     property bool cavaAvailable: false
+    readonly property bool streaming: cava.running
     property bool probed: false
     property bool probeRequested: false
 
@@ -29,8 +34,18 @@ Singleton {
     // spectrum is mounted: JS short-circuits, and QML therefore never tracks
     // the playback properties when nothing is watching.
     readonly property bool wanted: refCount > 0 && sinkName !== "" && audible
-    // 6 fps is plenty for the small bars; drop further on battery.
-    readonly property int framerate: BatteryService.isPluggedIn ? 6 : 4
+    // One Cava process feeds both surfaces. Keep the capture rate stable
+    // across open/close so the menu never waits for a Cava restart; the
+    // spectra redraw at their own rates from this shared stream.
+    readonly property int configuredFramerate: {
+        let rate = 0;
+        if (AudioDeckService.widgetVisualizer)
+            rate = Math.max(rate, widgetFps);
+        if (AudioDeckService.mixerVisualizer)
+            rate = Math.max(rate, mixerFps);
+        return rate;
+    }
+    readonly property int framerate: refCount > 0 ? configuredFramerate : 0
     property bool restarting: false
     property string activeSink: ""
 
@@ -42,7 +57,13 @@ Singleton {
         activeSink = sinkName;
         restartForChange();
     }
-    onFramerateChanged: restartForChange()
+    onConfiguredFramerateChanged: {
+        // Only a real settings/toggle change should restart the capture. Do
+        // not react to refCount going to zero during a menu close, or to it
+        // coming back during the linger window on a quick reopen.
+        if (refCount > 0 && configuredFramerate > 0)
+            restartForChange();
+    }
     onAudibleChanged: {
         if (!audible)
             lingerTimer.stop();
@@ -66,13 +87,32 @@ Singleton {
             lingerTimer.stop();
     }
 
-    function acquire() {
-        refCount += 1;
+    function acquire(role, fps) {
+        setFps(role, fps);
+        if (role === "widget")
+            widgetRefCount += 1;
+        else
+            mixerRefCount += 1;
+        refCount = widgetRefCount + mixerRefCount;
         probeRequested = true;
     }
 
-    function release() {
-        refCount = Math.max(0, refCount - 1);
+    function release(role) {
+        if (role === "widget")
+            widgetRefCount = Math.max(0, widgetRefCount - 1);
+        else
+            mixerRefCount = Math.max(0, mixerRefCount - 1);
+        refCount = widgetRefCount + mixerRefCount;
+    }
+
+    function setFps(role, fps) {
+        const fallback = role === "widget" ? 4 : 12;
+        const value = Math.round(Number(fps));
+        const clamped = isFinite(value) ? Math.max(1, Math.min(30, value)) : fallback;
+        if (role === "widget")
+            widgetFps = clamped;
+        else
+            mixerFps = clamped;
     }
 
     // Cava is optional. The probe is lazy: a shell that never shows the

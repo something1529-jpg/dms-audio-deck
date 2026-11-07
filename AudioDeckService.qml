@@ -15,7 +15,10 @@ Singleton {
     // Mirrored from plugin settings by the widget so all instances agree.
     property int maxVolume: 100
     property int wheelStep: 5
-    property bool visualizer: true
+    property bool widgetVisualizer: true
+    property bool mixerVisualizer: true
+    property int widgetFps: 4
+    property int mixerFps: 12
     property bool showPercent: true
     property bool animations: true
 
@@ -354,9 +357,13 @@ Singleton {
     function syncSettings(data) {
         if (!data)
             return;
+        const legacyVisualizer = data.showVisualizer !== false;
         maxVolume = clampInt(data.maxVolume, 100, 150, 100);
         wheelStep = clampInt(data.wheelStep, 1, 25, 5);
-        visualizer = data.showVisualizer !== false;
+        widgetVisualizer = data.showWidgetVisualizer !== undefined ? data.showWidgetVisualizer !== false : legacyVisualizer;
+        mixerVisualizer = data.showMixerVisualizer !== undefined ? data.showMixerVisualizer !== false : legacyVisualizer;
+        widgetFps = clampInt(data.widgetFps, 1, 30, 4);
+        mixerFps = clampInt(data.mixerFps, 1, 30, 12);
         showPercent = data.showPercent !== false;
         animations = data.animations !== false;
     }

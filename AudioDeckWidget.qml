@@ -126,19 +126,22 @@ PluginComponent {
                     width: Theme.iconSizeMedium - Theme.spacingXXS
                     height: Theme.iconSizeSmall
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: AudioDeckService.visualizer && !AudioDeckService.masterMuted && AudioDeckService.master !== null
+                    visible: AudioDeckService.widgetVisualizer && !AudioDeckService.masterMuted && AudioDeckService.master !== null
 
                     AudioDeckSpectrum {
                         anchors.centerIn: parent
                         width: Theme.iconSizeMedium - Theme.spacingXXS
                         height: Theme.iconSizeSmall - Theme.spacingXXS
-                        barCount: 5
-                        barWidth: Theme.spacingXXS
-                        gap: Theme.spacingXXS
+                        barCount: 6
+                        barWidth: Theme.spacingXXS / 2
+                        gap: Theme.spacingXXS / 2
+                        stretch: true
                         maxBarHeight: Theme.iconSizeSmall - Theme.spacingXXS
                         minBarHeight: Theme.spacingXXS
                         active: !AudioDeckService.masterMuted && AudioDeckService.master !== null
-                        enabled: AudioDeckService.visualizer
+                        enabled: AudioDeckService.widgetVisualizer
+                        fps: AudioDeckService.widgetFps
+                        spectrumRole: "widget"
                     }
                 }
 

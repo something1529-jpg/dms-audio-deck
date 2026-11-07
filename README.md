@@ -19,6 +19,9 @@ it disappears.
   volume, and mix apps that are recording.
 - **Bar pill** — animated volume ring, real Cava spectrum, optional percentage.
   Scroll to change the master volume, right- or middle-click to mute.
+- **Configurable spectrum** — independent Cava switches and 1–30 fps redraw
+  controls for the bar pill and the opened mixer, with Battery saver (4),
+  Smooth (12) and Fluent (30) presets.
 - **Popout mixer** — master card, tabbed app/device lists, and status that
   updates as streams come and go.
 - **Control Center** — a tile with an inline master slider and a full mixer
@@ -90,7 +93,10 @@ DMS discovers the folder automatically; there is no registry entry to edit.
 |---------|---------|-------------|
 | Maximum volume | 100% | Upper limit for all sliders (100–150%) |
 | Scroll step | 5% | Change per wheel notch (1–25%) |
-| Live spectrum | On | Cava bars on the pill and master card |
+| Spectrum in bar pill | On | Cava bars on the bar widget |
+| Bar pill frame rate | 4 fps | Redraws per second (1–30); shared capture uses the highest enabled rate |
+| Spectrum in opened mixer | On | Cava bars on the mixer master card |
+| Mixer frame rate | 12 fps | Redraws per second (1–30); shared capture uses the highest enabled rate |
 | Show percentage on the bar | On | Master percentage next to the pill icon |
 | Smooth animations | On | Rings, meters and transitions |
 
@@ -107,7 +113,8 @@ DMS discovers the folder automatically; there is no registry entry to edit.
   PipeWire input and an explicit `source=<default-sink>.monitor`, so it reads
   the same signal as the speakers instead of the default microphone.
 - The spectrum acquires that Cava only while it is mounted and visible. No
-  spectrum means no Cava process, and no `CavaService` reference.
+  spectrum means no Cava process, and no `CavaService` reference. The bar and
+  mixer each hold their own reference and requested frame rate.
 - Cava's configuration is passed through a file descriptor; the plugin does
   not create a temporary config file.
 - No `pactl`/`wpctl` polling: changes made elsewhere (or by another mixer)
@@ -116,9 +123,11 @@ DMS discovers the folder automatically; there is no registry entry to edit.
 ## Performance
 
 - Cava runs only while an audible, unpaused playback stream exists and the
-  master output is neither muted nor at 0%. It runs at 6 updates per second on
-  AC and 4 on battery; repeated silent frames are ignored. There is no separate
-  QML animation loop.
+  master output is neither muted nor at 0%. One shared capture stream feeds
+  both surfaces at the highest enabled spectrum rate (4 fps battery saver,
+  12 fps smooth, 30 fps fluent; the sliders accept 1–30). Each surface samples
+  that stream at its own redraw rate, so opening or closing the mixer never
+  restarts Cava. Repeated silent frames are ignored.
 - The Cava binary is probed once, lazily, only after a spectrum is actually
   shown. With the live spectrum off, or on a shell that never opens the mixer,
   no helper process is spawned at all.
